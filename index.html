@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<title>Instalación EA · 9 Oct</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<style>
+/* Layout: lobby de battle royale — banner con franjas de peligro, fila de HUD (anillo de zona · escuadrón · feed de actividad) y debajo la lista de puestos como menú del juego */
+:root{
+  color-scheme:dark;
+  --bg:#0d0d0d; --panel:#1b1b1b; --panel-2:#232323; --line:#2e2e2e; --line-2:#3a3a3a;
+  --fg:#e9e4d8; --muted:#9a948a; --dim:#6e6a62;
+  --red:#da292a; --red-hi:#ff4a4b;
+  --s-falt:#6b6b6b; --s-proc:#4fa3ff; --s-real:#b45cff; --s-check:#f2b61b;
+  --f-display:"Teko","Arial Narrow",Impact,sans-serif;
+  --f-body:"Rajdhani",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --cut:polygon(0 0,100% 0,100% 72%,calc(100% - 14px) 100%,0 100%);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:16px;font-weight:500;line-height:1.4;padding-inline:16px;padding-block:16px 48px}
+.wrap{max-width:1200px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--red-hi);outline-offset:2px}
+
+/* Banner A: franjas de peligro */
+.top{position:relative;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 20px;border-bottom:3px solid var(--red);
+  background:repeating-linear-gradient(-45deg,rgba(218,41,42,.22) 0 14px,transparent 14px 28px),linear-gradient(90deg,#1b1b1b 35%,#2a1414)}
+.badge{width:48px;height:48px;flex:none;display:grid;place-items:center;background:var(--red);color:#fff;font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;padding-top:4px;clip-path:polygon(12% 0,100% 0,88% 100%,0 100%)}
+.brand{min-width:0;flex:1 1 260px}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5vw,44px);line-height:.85;text-transform:uppercase;letter-spacing:.02em}
+.brand p{margin:4px 0 0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#b9b2a5;font-weight:700}
+.me{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.zone{font-family:var(--f-display);font-size:20px;color:var(--red-hi);letter-spacing:.06em;text-transform:uppercase;animation:blink 1.4s infinite}
+.zone.off{color:var(--muted);animation:none}
+@keyframes blink{50%{opacity:.35}}
+.who{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:24px;line-height:1;text-transform:uppercase;letter-spacing:.03em}
+.who i{width:14px;height:14px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.who small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.16em;color:var(--muted);font-weight:700}
+.ghost{background:rgba(0,0,0,.35);border:1px solid var(--line-2);padding:7px 12px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ghost:hover{color:var(--fg);border-color:var(--muted)}
+.notice{margin-top:12px;padding:10px 14px;background:var(--panel);border-left:3px solid var(--s-check);color:var(--muted);font-size:15px}
+
+/* HUD */
+.hud{display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,300px);gap:14px;margin-top:14px}
+@media (max-width:900px){.hud{grid-template-columns:150px minmax(0,1fr)}.feedbox{grid-column:1/-1}}
+@media (max-width:560px){.hud{grid-template-columns:1fr}}
+.box{background:var(--panel);padding:14px;clip-path:var(--cut);min-width:0}
+.lab{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px}
+.ring{position:relative;width:132px;height:132px;margin:0 auto}
+.ring svg{transform:rotate(-90deg);display:block}
+.ring .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--f-display);font-size:42px;line-height:.8}
+.ring .c small{display:block;font-family:var(--f-body);font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:700;margin-top:6px}
+#arc{transition:stroke-dashoffset 1.2s ease}
+.ringleg{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin-top:10px;font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.ringleg span{display:flex;align-items:center;gap:5px}
+.ringleg i{width:9px;height:9px;flex:none}
+.ringleg b{color:var(--fg);margin-left:auto}
+.squad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.card{background:var(--panel-2);padding:10px 12px;clip-path:var(--cut);border-top:3px solid var(--c,var(--dim));min-width:0}
+.card.mine{background:linear-gradient(180deg,rgba(255,255,255,.05),transparent),var(--panel-2)}
+.card b{display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1;text-transform:uppercase;letter-spacing:.03em}
+.card .st-dot{width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.card .st-dot.in{background:#2fd27a}
+.stats{display:flex;gap:12px;margin-top:4px;font-size:13px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.stats em{font-style:normal;font-family:var(--f-mono);font-size:14px}
+.stats .p em{color:var(--s-proc)} .stats .r em{color:var(--s-real)} .stats .k em{color:var(--s-check)}
+.bossline{margin-top:8px;font-size:13px;color:var(--muted);font-weight:600}
+.feed{display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:hidden}
+.feed div{background:rgba(218,41,42,.10);border-left:3px solid var(--fc,var(--red));padding:5px 9px;font-size:14px;font-weight:600;display:flex;gap:8px;align-items:baseline}
+.feed div.new{animation:kf .45s both}
+.feed b{color:var(--fc,var(--fg));font-weight:700}
+.feed time{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--dim);flex:none}
+.feed .none{background:transparent;border-left-color:var(--line-2);color:var(--muted)}
+@keyframes kf{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+
+/* Toolbar */
+.key{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font-size:13px;color:var(--muted);font-weight:700}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key i{width:12px;height:12px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.tools input{flex:1 1 220px;min-width:0;background:var(--panel);border:1px solid var(--line-2);padding:10px 12px;color:var(--fg);font:inherit;font-weight:600}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line-2);padding:7px 12px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+
+/* List */
+.list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:110px minmax(0,1fr) auto;align-items:center;gap:14px;background:var(--panel);padding:9px 12px 9px 16px;clip-path:polygon(0 0,100% 0,100% 70%,calc(100% - 12px) 100%,0 100%);box-shadow:inset 5px 0 0 var(--sc,var(--s-falt))}
+.row[data-s="proceso"]{--sc:var(--s-proc)}
+.row[data-s="realizado"]{--sc:var(--s-real)}
+.row[data-s="chequeado"]{--sc:var(--s-check);background:linear-gradient(90deg,rgba(242,182,27,.08),transparent 45%),var(--panel)}
+.row.hit{animation:hit .38s}
+@keyframes hit{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}100%{transform:none}}
+.num{font-family:var(--f-display);font-weight:600;font-size:40px;line-height:.8;font-variant-numeric:tabular-nums}
+.num small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.14em;color:var(--dim);font-weight:700;margin-top:6px;text-transform:uppercase}
+.num small.prov{color:var(--s-proc)}
+.info{min-width:0}
+.info .n{font-weight:700;font-size:18px;overflow-wrap:anywhere;line-height:1.2}
+.info .t{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:3px;font-size:13px;color:var(--muted);font-weight:600}
+.tag{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--fg)}
+.owner b{font-weight:700}
+.states{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}
+.st{background:#111;border:1px solid var(--line-2);padding:7px 10px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.st:hover:not(:disabled){color:var(--fg);border-color:var(--muted)}
+.st:disabled{opacity:.3;cursor:not-allowed}
+.st.on{opacity:1;color:#111}
+.st.on[data-v="faltante"]{background:var(--s-falt);border-color:var(--s-falt)}
+.st.on[data-v="proceso"]{background:var(--s-proc);border-color:var(--s-proc)}
+.st.on[data-v="realizado"]{background:var(--s-real);border-color:var(--s-real)}
+.st.on[data-v="chequeado"]{background:var(--s-check);border-color:var(--s-check)}
+.lock{font-size:12px;color:var(--dim);text-align:right;margin-top:4px;font-weight:700;letter-spacing:.04em}
+@media (max-width:720px){
+  .row{grid-template-columns:84px minmax(0,1fr)}
+  .num{font-size:32px}
+  .states{grid-column:1/-1}
+  .st{flex:1 1 0;padding:9px 2px;font-size:12px}
+  .lock{grid-column:1/-1;text-align:left;margin-top:0}
+}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line-2)}
+
+/* Selección de jugador */
+.gate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgba(5,5,5,.9)}
+.gate .cardx{width:min(480px,100%);background:var(--panel);clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%);padding:22px;border-top:4px solid var(--red);max-height:calc(100vh - 32px);overflow:auto}
+.gate h2{margin:0;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:38px;line-height:.85}
+.gate p{margin:6px 0 16px;color:var(--muted);font-weight:600}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick button{background:var(--panel-2);border:1px solid var(--line-2);padding:12px;text-align:left;border-top:3px solid var(--c,var(--line-2))}
+.pick button:hover:not(:disabled){border-color:var(--muted);border-top-color:var(--c,var(--muted))}
+.pick button:disabled{opacity:.35;cursor:not-allowed}
+.pick b{display:block;font-family:var(--f-display);font-weight:600;font-size:28px;line-height:1;text-transform:uppercase;letter-spacing:.03em}
+.pick small{color:var(--muted);font-size:13px;font-weight:600}
+.pick .wide{grid-column:1/-1}
+.sw{display:inline-block;width:22px;height:22px;vertical-align:-4px;margin-right:8px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.back{margin-top:14px}
+.feedhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.feedhead .lab{margin:0}
+.logbtn{padding:5px 9px;font-size:12px;color:var(--fg);border-color:var(--red)}
+.logbtn:hover{background:var(--red);color:#fff}
+.logcard{width:min(620px,100%)}
+.loghead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.loghead p{margin:6px 0 0}
+.loglist{margin-top:12px;display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow:auto}
+.loglist .day{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:10px 0 2px}
+.loglist .it{display:flex;gap:10px;align-items:baseline;background:var(--panel-2);border-left:3px solid var(--fc,var(--red));padding:6px 10px;font-size:15px;font-weight:600}
+.loglist .it b{color:var(--fc,var(--fg))}
+.loglist .it time{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--dim);flex:none}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:#111;padding:10px 16px;font-weight:700;font-size:15px;z-index:30;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="badge">EA</div>
+    <div class="brand">
+      <h1>Instalación de puestos</h1>
+      <p>Escuadrón de instalación · Drop 9 de octubre</p>
+    </div>
+    <div class="me">
+      <span class="zone off" id="zone">Conectando…</span>
+      <div class="who" id="who" hidden></div>
+      <button class="ghost" id="switch" hidden>Cambiar jugador</button>
+    </div>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <section class="hud">
+    <div class="box">
+      <p class="lab">Zona asegurada</p>
+      <div class="ring">
+        <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+          <circle cx="66" cy="66" r="54" fill="none" stroke="#2a2a2a" stroke-width="11"></circle>
+          <circle id="arc" cx="66" cy="66" r="54" fill="none" stroke="#da292a" stroke-width="11" stroke-dasharray="339.3" stroke-dashoffset="339.3"></circle>
+        </svg>
+        <div class="c"><span id="pct">0%</span><small id="pctTxt">0 de 77</small></div>
+      </div>
+      <div class="ringleg" id="ringleg"></div>
+    </div>
+    <div class="box">
+      <p class="lab">Escuadrón</p>
+      <div class="squad" id="squad"></div>
+      <div class="bossline" id="bossLine"></div>
+    </div>
+    <div class="box feedbox">
+      <div class="feedhead"><p class="lab">Actividad</p><button class="ghost logbtn" id="openLog">Registro de actividad</button></div>
+      <div class="feed" id="feed"><div class="none">Aquí aparecerá cada puesto que alguien tome, asegure o revise.</div></div>
+    </div>
+  </section>
+
+  <div class="key">
+    <span><i style="background:var(--s-falt)"></i>Faltante · común</span>
+    <span><i style="background:var(--s-proc)"></i>En proceso · raro</span>
+    <span><i style="background:var(--s-real)"></i>Realizado · épico</span>
+    <span><i style="background:var(--s-check)"></i>Chequeado · legendario</span>
+  </div>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="Buscar por nombre, equipo o número de puesto" aria-label="Buscar">
+    <div class="chips" id="chips" role="group" aria-label="Filtrar">
+      <button class="chip" data-f="todos" aria-pressed="true">Todos</button>
+      <button class="chip" data-f="faltante" aria-pressed="false">Faltantes</button>
+      <button class="chip" data-f="proceso" aria-pressed="false">En proceso</button>
+      <button class="chip" data-f="realizado" aria-pressed="false">Realizados</button>
+      <button class="chip" data-f="chequeado" aria-pressed="false">Chequeados</button>
+      <button class="chip" data-f="mios" aria-pressed="false">Míos</button>
+    </div>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<div class="gate" id="gate" hidden>
+  <div class="cardx">
+    <h2 id="gateTitle">Elige tu jugador</h2>
+    <p id="gateSub">Todo lo que marques quedará a tu nombre y lo verá el escuadrón.</p>
+    <div class="pick" id="pick"></div>
+    <button class="ghost back" id="gateBack" hidden>Volver</button>
+  </div>
+</div>
+<div class="gate" id="logModal" hidden>
+  <div class="cardx logcard">
+    <div class="loghead">
+      <div><h2>Registro de actividad</h2><p id="logCount">Todo lo que ha pasado en la partida.</p></div>
+      <button class="ghost" id="closeLog">Cerrar</button>
+    </div>
+    <div class="chips" id="logChips" role="group" aria-label="Filtrar registro"></div>
+    <div class="loglist" id="logList"></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+// =====================================================================
+//  CONFIGURACIÓN DE FIREBASE  (lo único que cambia entre proyectos)
+// =====================================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAlitRy6R8K09QOAifZk-4lTHvp_EjVCzw",
+  authDomain: "ea-instalacion.firebaseapp.com",
+  projectId: "ea-instalacion",
+  storageBucket: "ea-instalacion.firebasestorage.app",
+  messagingSenderId: "292095135948",
+  appId: "1:292095135948:web:9eeda008becd59ab083269"
+};
+// =====================================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, onSnapshot, setDoc, getDoc, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// [puesto, nombre, equipo, provisional]
+// Regla: si tiene número provisional (amarillo) se usa ese; si no, el Desk New office. Fan Care siempre usa Desk New office.
+const PEOPLE = [
+ ["8049","Maira Gabriela Villamil Martin","Fan Care",0],
+ ["8055","Sergio Esteban Bautista Moreno","Fan Care",0],
+ ["8052","Jorge Leonardo Torres Arévalo","Fan Care",0],
+ ["8054","Mónica Gallegos","Fan Care",0],
+ ["8056","Cristian David Campos","Fan Care",0],
+ ["8058","Andres Felipe Tellez Garcia","Fan Care",0],
+ ["8053","Rubén Santiago Torres Sabogal","Fan Care",0],
+ ["8051","Nicolás Andrés Rueda","Fan Care",0],
+ ["8057","Eduardo Jose Gutierrez Pereira","Fan Care",0],
+ ["8059","Daniela Oliveros Hernandez","Fan Care",0],
+ ["8060","Liz Rocha","Fan Care",0],
+ ["8035","Ana Maria Barcenas Hernandez","TA",0],
+ ["8034","Valentina Martinez Triana","Ops",0],
+ ["9001","Juan Sebastian Mendoza Moncada","Data",0],
+ ["9002","Juan Camilo Bejarano Triana","Data",0],
+ ["10041","Laura Andrea Reyes Botero","Skate",1],
+ ["10045","Fabian Camilo Arismendy Alba","Skate",1],
+ ["10049","Carlos Eduardo Botero Galvis","Skate",1],
+ ["10050","Carlos Santiago Sandoval Casallas","Skate",1],
+ ["10051","Juan Camilo Bautista Cifuentes","Skate",1],
+ ["10055","Cristian Camilo Delgado Melo","Skate",1],
+ ["10053","Francisco Antonio Rodriguez Carrasco","Skate",1],
+ ["10060","Alejandro Enrique Suárez Acosta","Skate",1],
+ ["10062","Daniel Felipe Padua Gonzalez","Skate",1],
+ ["10063","Juan Andrés Guevara Avella","Skate",1],
+ ["8027","Vitali Gil","APEX",1],
+ ["8028","Karol Perez Rojas","APEX",1],
+ ["8029","Gabriela Bohorquez Ramirez","APEX",1],
+ ["7018","Mateo Nates","APEX",0],
+ ["8031","July Masmela Jimenez","APEX",1],
+ ["8001","Daniel Alberto Castellanos Zambrano","Ops",0],
+ ["8002","Georgelin Maria Fernandez Medina","Tech",0],
+ ["8003","Jonathan Daniel Briceño Barrera","Tech",0],
+ ["8004","Jeisson Mauricio Sierra Camargo","Tech",0],
+ ["8005","Santiago Rivadeneira Delgado","Tech",0],
+ ["8006","Andrés Camilo Jiménez Alvarez","Tech",0],
+ ["8007","Sebastian Duque Echeverri","Tech",0],
+ ["8008","Tom Erick Perez Álvarez","Tech",0],
+ ["8009","Miguel Ángel Gómez Barrera","Tech",0],
+ ["8010","Juan David Cardona Paez","Tech",0],
+ ["8011","Gabriel Mauricio Diaz Romero","Tech",0],
+ ["8012","Edwin Fabián Vargas Cañón","Tech",0],
+ ["8022","Angela Maria Garcia Urrego","PE",0],
+ ["8023","Alejandra Navas Bohórquez","PE",0],
+ ["8032","Maria Camila Ardila Figueroa","TA",0],
+ ["8033","Valentina Rivera Bustos","TA",0],
+ ["8036","Andres Felipe Agudelo Pulido","TA",0],
+ ["8037","Gabriela Chacon Sarmiento","TA",0],
+ ["9006","Maria Paula Méndez Molano","Marketing",0],
+ ["9009","Camilo Andres Severiche Ortegon","Ops",0],
+ ["9026","Jose Daniel Almenarez Velez","Madden Sports",0],
+ ["9027","Jhoan Esteban Rodriguez Castellanos","Madden Sports",0],
+ ["9028","Julian David Varela Perdomo","Madden Sports",0],
+ ["9029","Maria Paula Rueda Gonzalez","Madden Sports",0],
+ ["9030","Gabriel Felipe Ayala Arenas","Madden Sports",0],
+ ["9031","Sergio Alonso Fonseca Chavez","Madden Sports",0],
+ ["9032","Julian David Mendoza Ruiz","Madden Sports",0],
+ ["9033","Maria Fernanda Mesa Ramirez","Madden Sports",0],
+ ["9034","Renato Jesus Mazzilli Fonseca","Madden Sports",0],
+ ["9035","David Andrés Gómez Rincón","Madden Sports",0],
+ ["9036","Andres Felipe Aguilera Sanchez","Madden Sports",0],
+ ["9051","Francisco Javier Diaz Roa","Madden Sports",0],
+ ["9052","Pablo Andres Suarez Murillo","Madden Sports",0],
+ ["9062","Luis Guillermo De la Cruz Carranza","Mobile",0],
+ ["9063","Julian Andres Mallama Ospina","Mobile",0],
+ ["9064","Maria Camila Herrera Velandia","Mobile",0],
+ ["9065","Jeronimo Arias Reyes","Mobile",0],
+ ["9066","Juan Felipe Baquero","Mobile",0],
+ ["9067","Juan Sebastian Bastidas Bastidas","Mobile",0],
+ ["9068","Miguel Angel Rueda Aponte","Mobile",0],
+ ["9069","Jose Daniel Mora Giraldo","Mobile",0],
+ ["10001","Daniel Mateus Camargo","Sims",0],
+ ["10003","Romualdo José Villalobos Pérez","Sims",0],
+ ["10004","David Stephan Ramirez Camacho","Sims",0],
+ ["10005","Juan Daniel Traslaviña Guevara","Sims",0],
+ ["10006","Iván Enrique Garcerant Tafur","Sims",0],
+ ["10008","Nicolas Viveros Barrera","Sims",0]
+].map(([desk,name,team,prov])=>({desk,name,team,prov:!!prov})).sort((a,b)=>Number(a.desk)-Number(b.desk));
+
+const TECHS=["Mateo","Yohan","Joan","Gabriel"];
+const BOSS="Alexis";
+const FIXED={Mateo:"#da292a"};
+const PALETTE=[["cian","Cian","#19d3e6"],["verde","Verde","#2fd27a"],["naranja","Naranja","#ff8a1f"],["rosa","Rosa","#ff5fa8"],["blanco","Blanco","#e9e4d8"],["lima","Lima","#b6f23a"]];
+const STATES=[["faltante","Faltante"],["proceso","En proceso"],["realizado","Realizado"],["chequeado","Chequeado"]];
+const SCOL={faltante:"var(--s-falt)",proceso:"var(--s-proc)",realizado:"var(--s-real)",chequeado:"var(--s-check)"};
+const VERB={proceso:"tomó el",realizado:"aseguró el",chequeado:"revisó el",faltante:"liberó el"};
+const FEED_MAX=6;
+
+let me=null, fs=null, online=false;
+let desks={}, team={}, colors={}, allFeed=[], feedItems=[];
+let filter="todos", query="", logFilter="todos";
+const busy=new Set(), justHit=new Set(), seenFeed=new Set();
+let firstFeed=true, desksLoaded=false;
+
+const $=id=>document.getElementById(id);
+function store(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2800)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function stOf(d){return (desks[d]&&desks[d].status)||"faltante"}
+function hhmm(t){const d=new Date(t||0);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
+function colorOf(name){
+  if(FIXED[name]) return FIXED[name];
+  if(name===BOSS) return "var(--fg)";
+  const k=team[name]&&team[name].color; const p=PALETTE.find(x=>x[0]===k);
+  return p?p[2]:"var(--muted)";
+}
+function colorOwner(key){
+  for(const n of Object.keys(team)){ if(team[n]&&team[n].color===key) return n }
+  return (colors[key]&&colors[key].by)||null;
+}
+function showNotice(t){const n=$("notice");n.textContent=t;n.hidden=!t}
+
+// ---------- Selección de jugador y color ----------
+function showNames(){
+  $("gateTitle").textContent="Elige tu jugador";
+  $("gateSub").textContent="Todo lo que marques quedará a tu nombre y lo verá el escuadrón.";
+  $("gateBack").hidden=true;
+  $("pick").innerHTML=TECHS.map(t=>{
+    const has=FIXED[t]||(team[t]&&team[t].color);
+    const sub=FIXED[t]?"Técnico · rojo fijo":(has?"Técnico · color elegido":"Técnico · elige color");
+    return `<button data-n="${t}" style="${has?`--c:${colorOf(t)}`:""}"><b>${t}</b><small>${sub}</small></button>`;
+  }).join("")+`<button class="wide" data-n="${BOSS}"><b>${BOSS}</b><small>Jefe · revisa y marca Chequeado</small></button>`;
+  $("gate").hidden=false;
+}
+function showColors(name){
+  $("gateTitle").textContent=`${name}, elige tu color`;
+  $("gateSub").textContent="Cada color es de una sola persona. Los que ya tienen dueño aparecen bloqueados.";
+  $("gateBack").hidden=false;
+  const mine=team[name]&&team[name].color;
+  $("pick").innerHTML=PALETTE.map(([k,l,h])=>{
+    const owner=colorOwner(k); const taken=owner&&owner!==name;
+    return `<button data-c="${k}" data-for="${name}" style="--c:${h}" ${taken?"disabled":""}><b><span class="sw" style="background:${h}"></span>${l}</b><small>${taken?`Lo tiene ${esc(owner)}`:(mine===k?"Tu color actual":"Disponible")}</small></button>`;
+  }).join("");
+}
+$("pick").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b||b.disabled) return;
+  if(b.dataset.n){
+    const n=b.dataset.n;
+    if(n===BOSS||FIXED[n]||(team[n]&&team[n].color)) return signIn(n,true);
+    if(!fs){toast("Conectando con el escuadrón, intenta en un segundo");return}
+    return showColors(n);
+  }
+  if(b.dataset.c) claimColor(b.dataset.for,b.dataset.c);
+});
+$("gateBack").onclick=showNames;
+$("switch").onclick=showNames;
+
+async function claimColor(name,key){
+  if(!fs) return;
+  const old=team[name]&&team[name].color;
+  try{
+    // Transacción: el color solo se asigna si nadie más lo tiene (sin choques si dos eligen a la vez)
+    await runTransaction(fs, async tx=>{
+      const ref=doc(fs,"colors",key);
+      const snap=await tx.get(ref);
+      if(snap.exists() && snap.data().by && snap.data().by!==name) throw {code:"taken",by:snap.data().by};
+      tx.set(ref,{by:name,at:Date.now()});
+      if(old&&old!==key) tx.delete(doc(fs,"colors",old));
+      tx.set(doc(fs,"team",name.toLowerCase()),{name,color:key},{merge:true});
+    });
+    team[name]=Object.assign({},team[name],{name,color:key});
+    await signIn(name,true);
+  }catch(e){
+    if(e&&e.code==="taken"){toast(`Ese color ya es de ${e.by}`);showColors(name)}
+    else toast("No se pudo guardar el color. Revisa tu conexión.");
+  }
+}
+async function signIn(name,fromGate){
+  me=name; store("ea-install-me",name); $("gate").hidden=true; renderMe(); render();
+  if(!fs) return;
+  const prev=team[name]||{};
+  try{
+    await setDoc(doc(fs,"team",name.toLowerCase()),{
+      name, color:FIXED[name]?"rojo":(name===BOSS?null:(prev.color||null)),
+      joinedAt:prev.joinedAt||Date.now(), lastSeen:Date.now()
+    },{merge:true});
+  }catch(e){}
+  if(fromGate) logFeed(name,"entró a la partida",null);
+}
+function renderMe(){
+  const w=$("who");
+  if(!me){w.hidden=true;$("switch").hidden=true;return}
+  w.hidden=false;$("switch").hidden=false;
+  w.innerHTML=`<i style="background:${colorOf(me)}"></i><span>${esc(me)}<small>${me===BOSS?"Jefe · revisión":"Técnico"}</small></span>`;
+}
+
+// ---------- Reglas por fila ----------
+function allowedOn(cur,target){
+  if(!me) return false;
+  cur=cur||{}; const s=cur.status||"faltante";
+  if(target===s) return false;
+  if(me===BOSS) return target==="chequeado"?s==="realizado":true;
+  if(target==="chequeado"||s==="chequeado") return false;
+  if(s==="faltante") return true;
+  return cur.by===me;
+}
+function allowed(p,target){ return !!fs && allowedOn(desks[p.desk],target) }
+function lockReason(p){
+  const cur=desks[p.desk]; if(!cur||!me) return "";
+  const s=cur.status;
+  if(me===BOSS) return s==="realizado"?"Listo para tu revisión":"";
+  if(s==="chequeado") return `Revisado por ${cur.checkedBy||BOSS}`;
+  if((s==="proceso"||s==="realizado")&&cur.by!==me) return s==="proceso"?`Ocupado por ${cur.by}`:`Bloqueado · lo hizo ${cur.by}`;
+  return "";
+}
+
+async function logFeed(actor,verb,desk){
+  if(!fs) return;
+  try{await addDoc(collection(fs,"feed"),{actor,verb,desk:desk||null,at:Date.now()})}catch(e){}
+}
+
+async function setState(deskId,target){
+  if(busy.has(deskId)) return;
+  if(!allowedOn(desks[deskId],target)){toast("Ese puesto no está disponible para ti");return}
+  busy.add(deskId);
+  try{
+    // Transacción: lee el estado real en el servidor y solo escribe si sigue permitido
+    await runTransaction(fs, async tx=>{
+      const ref=doc(fs,"desks",deskId);
+      const snap=await tx.get(ref);
+      const cur=snap.exists()?snap.data():{status:"faltante"};
+      if(!allowedOn(cur,target)) throw {code:"changed",by:cur.by};
+      let body;
+      if(target==="faltante") body={status:"faltante",by:null,at:Date.now()};
+      else if(target==="chequeado") body={status:"chequeado",by:cur.by||null,at:cur.at||Date.now(),checkedBy:me,checkedAt:Date.now()};
+      else if(me===BOSS&&cur.by) body={status:target,by:cur.by,at:Date.now()};
+      else body={status:target,by:me,at:Date.now()};
+      tx.set(ref,body);
+    });
+    logFeed(me,VERB[target],deskId);
+  }catch(e){
+    if(e&&e.code==="changed") toast(`El ${deskId} acaba de cambiar: lo tiene ${e.by||"otro"}`);
+    else toast("No se pudo guardar. Revisa tu conexión e intenta de nuevo.");
+  }finally{busy.delete(deskId)}
+}
+
+// ---------- Render ----------
+function counts(){const c={faltante:0,proceso:0,realizado:0,chequeado:0};PEOPLE.forEach(p=>c[stOf(p.desk)]++);return c}
+function renderHud(){
+  const c=counts(), total=PEOPLE.length, done=c.realizado+c.chequeado;
+  $("pct").textContent=Math.round(done/total*100)+"%";
+  $("pctTxt").textContent=`${done} de ${total}`;
+  $("arc").style.strokeDashoffset=339.3*(1-done/total);
+  const SHORT={faltante:"Faltan",proceso:"Proceso",realizado:"Hechos",chequeado:"Rev"};
+  $("ringleg").innerHTML=STATES.map(([k])=>`<span><i style="background:${SCOL[k]}"></i>${SHORT[k]}<b>${c[k]}</b></span>`).join("");
+  const per={}; TECHS.forEach(t=>per[t]={p:0,r:0,c:0});
+  Object.values(desks).forEach(d=>{
+    if(!d||!per[d.by]) return;
+    if(d.status==="proceso") per[d.by].p++;
+    if(d.status==="realizado") per[d.by].r++;
+    if(d.status==="chequeado"){per[d.by].r++;per[d.by].c++}
+  });
+  const order=[...TECHS].sort((a,b)=>per[b].r-per[a].r||per[b].p-per[a].p);
+  $("squad").innerHTML=order.map(t=>`<div class="card ${t===me?"mine":""}" style="--c:${colorOf(t)}">
+    <b><span class="st-dot ${team[t]?"in":""}" title="${team[t]?"Ya ingresó":"Aún no ingresa"}"></span>${t}</b>
+    <div class="stats"><span class="p">Proceso <em>${per[t].p}</em></span><span class="r">Hechos <em>${per[t].r}</em></span><span class="k">Rev <em>${per[t].c}</em></span></div>
+  </div>`).join("");
+  const joined=[...TECHS,BOSS].filter(n=>team[n]).length;
+  $("bossLine").textContent=`${BOSS} ${team[BOSS]?"ya ingresó":"aún no ingresa"} · ${joined} de 5 conectados · Hechos incluye los revisados.`;
+}
+function renderFeed(){
+  const f=$("feed");
+  if(!feedItems.length){f.innerHTML=`<div class="none">Aquí aparecerá cada puesto que alguien tome, asegure o revise.</div>`}
+  else f.innerHTML=feedItems.map(it=>{
+    const isNew=!firstFeed&&!seenFeed.has(it.id);
+    return `<div class="${isNew?"new":""}" style="--fc:${colorOf(it.actor)}"><span><b>${esc(it.actor)}</b> ${esc(it.verb)}${it.desk?" "+esc(it.desk):""}</span><time>${hhmm(it.at)}</time></div>`;
+  }).join("");
+  allFeed.forEach(it=>seenFeed.add(it.id)); firstFeed=false;
+}
+function renderLog(){
+  if($("logModal").hidden) return;
+  const names=[...TECHS,BOSS];
+  $("logChips").innerHTML=[["todos","Todos"],...names.map(n=>[n,n])].map(([k,l])=>`<button class="chip" data-lf="${k}" aria-pressed="${logFilter===k}">${l}</button>`).join("");
+  const items=allFeed.filter(it=>logFilter==="todos"||it.actor===logFilter);
+  $("logCount").textContent=`${items.length} ${items.length===1?"aviso":"avisos"} registrados${logFilter==="todos"?"":" de "+logFilter}.`;
+  if(!items.length){$("logList").innerHTML=`<div class="empty">Todavía no hay avisos.</div>`;return}
+  let lastDay="",html="";
+  items.forEach(it=>{
+    const day=new Date(it.at||0).toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"});
+    if(day!==lastDay){html+=`<div class="day">${esc(day)}</div>`;lastDay=day}
+    html+=`<div class="it" style="--fc:${colorOf(it.actor)}"><span><b>${esc(it.actor)}</b> ${esc(it.verb)}${it.desk?" "+esc(it.desk):""}</span><time>${hhmm(it.at)}</time></div>`;
+  });
+  $("logList").innerHTML=html;
+}
+function renderList(){
+  const q=query.trim().toLowerCase();
+  const rows=PEOPLE.filter(p=>{
+    const s=stOf(p.desk);
+    if(filter==="mios"){const d=desks[p.desk];if(!d||(d.by!==me&&d.checkedBy!==me))return false}
+    else if(filter!=="todos"&&s!==filter) return false;
+    if(q&&!(p.name.toLowerCase().includes(q)||p.team.toLowerCase().includes(q)||p.desk.includes(q))) return false;
+    return true;
+  });
+  if(!rows.length){$("list").innerHTML=`<div class="empty">No hay puestos con este filtro.</div>`;return}
+  $("list").innerHTML=rows.map(p=>{
+    const d=desks[p.desk], s=stOf(p.desk), lr=lockReason(p);
+    let owner="";
+    if(d&&d.by&&s!=="faltante") owner=`<span class="owner">${s==="proceso"?"En curso":"Instaló"}: <b style="color:${colorOf(d.by)}">${esc(d.by)}</b></span>`;
+    if(s==="chequeado") owner+=`<span class="owner">Revisó: <b>${esc(d.checkedBy||BOSS)}</b></span>`;
+    const btns=STATES.map(([k,l])=>`<button class="st ${s===k?"on":""}" data-v="${k}" data-d="${p.desk}" ${s!==k&&!allowed(p,k)?"disabled":""} aria-pressed="${s===k}">${l}</button>`).join("");
+    return `<div class="row ${justHit.has(p.desk)?"hit":""}" data-s="${s}">
+      <div class="num">${p.desk}<small class="${p.prov?"prov":""}">${p.prov?"Provisional":"New office"}</small></div>
+      <div class="info"><div class="n">${esc(p.name)}</div><div class="t"><span class="tag">${esc(p.team)}</span>${owner}</div></div>
+      <div><div class="states">${btns}</div>${lr?`<div class="lock">${esc(lr)}</div>`:""}</div>
+    </div>`;
+  }).join("");
+  justHit.clear();
+}
+function render(){renderHud();renderList()}
+
+$("list").addEventListener("click",e=>{
+  const b=e.target.closest(".st"); if(!b||b.disabled) return;
+  if(!me){showNames();return}
+  setState(b.dataset.d,b.dataset.v);
+});
+$("chips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  filter=b.dataset.f; document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b)); renderList();
+});
+let qt; $("q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{query=e.target.value;renderList()},120)});
+$("openLog").onclick=()=>{logFilter="todos";$("logModal").hidden=false;renderLog()};
+$("closeLog").onclick=()=>{$("logModal").hidden=true};
+$("logModal").addEventListener("click",e=>{
+  if(e.target.id==="logModal"){$("logModal").hidden=true;return}
+  const b=e.target.closest("[data-lf]"); if(b){logFilter=b.dataset.lf;renderLog()}
+});
+
+function setZone(on){
+  online=on; const z=$("zone");
+  z.classList.toggle("off",!on);
+  z.textContent=on?"Anillo cerrando · en vivo":"Sin conexión · reintentando";
+  showNotice(on?"":"Se perdió la conexión. Lo que marques se guardará apenas vuelva el internet; los cambios de estado necesitan conexión.");
+}
+
+// ---------- Arranque ----------
+me=load("ea-install-me"); if(me&&![...TECHS,BOSS].includes(me)) me=null;
+renderMe(); render();
+if(!me) showNames();
+
+if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("PEGA")){
+  $("zone").textContent="Falta conectar";
+  showNotice("Esta página todavía no está conectada a Firebase. Pega la configuración en FIREBASE_CONFIG al inicio del script.");
+}else{
+  try{
+    const app=initializeApp(FIREBASE_CONFIG);
+    fs=getFirestore(app);
+    $("zone").textContent="Conectando…";
+    onSnapshot(collection(fs,"desks"),{includeMetadataChanges:true},snap=>{
+      const next={}; snap.forEach(d=>next[d.id]=d.data());
+      if(desksLoaded) snap.docChanges().forEach(ch=>{if(ch.type!=="removed") justHit.add(ch.doc.id)});
+      desksLoaded=true; desks=next;
+      setZone(!snap.metadata.fromCache);
+      render();
+    },err=>{setZone(false);showNotice("No se pudo leer la base de datos ("+(err.code||"error")+"). Revisa las reglas de Firestore.")});
+    onSnapshot(collection(fs,"team"),snap=>{
+      const next={}; snap.forEach(d=>{const v=d.data(); if(v&&v.name) next[v.name]=v});
+      team=next; renderMe(); render(); renderFeed(); renderLog();
+      if(!$("gate").hidden&&$("gateBack").hidden) showNames();
+    });
+    onSnapshot(collection(fs,"colors"),snap=>{
+      const next={}; snap.forEach(d=>next[d.id]=d.data()); colors=next;
+    });
+    // Todo el registro queda guardado; el panel muestra solo los 6 más recientes
+    onSnapshot(collection(fs,"feed"),snap=>{
+      const items=[]; snap.forEach(d=>items.push(Object.assign({id:d.id},d.data())));
+      items.sort((a,b)=>(b.at||0)-(a.at||0));
+      if(!firstFeed) items.forEach(it=>{ if(!seenFeed.has(it.id)&&it.verb==="entró a la partida"&&it.actor!==me) toast(`${it.actor} entró a la partida`) });
+      allFeed=items; feedItems=items.slice(0,FEED_MAX); renderFeed(); renderLog();
+    });
+    if(me) setDoc(doc(fs,"team",me.toLowerCase()),{name:me,lastSeen:Date.now()},{merge:true}).catch(()=>{});
+  }catch(e){
+    $("zone").textContent="Error de configuración";
+    showNotice("La configuración de Firebase no es válida. Copia de nuevo el bloque firebaseConfig completo.");
+  }
+}
+</script>
+</body>
+</html>
