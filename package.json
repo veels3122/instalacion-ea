@@ -1,0 +1,18 @@
+{
+  "name": "wave-mudanza",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Registro y mudanza de puestos - Wave 14/11/2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "jszip": "^3.10.1",
+    "pg": "^8.13.1"
+  }
+}

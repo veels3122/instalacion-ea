@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Wave · Mudanza de Puestos</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 0h24l4 4v24l-4 4H4l-4-4V4z' fill='%23da292a'/%3E%3Cpath d='M7 9l3 14h2l4-9 4 9h2l3-14h-3l-2 9-4-9-4 9-2-9z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="app">
+  <header class="hdr">
+    <div class="hdr-row">
+      <div class="brand">
+        <div class="brand-mark">W</div>
+        <div>
+          <div class="brand-title">WAVE<span class="long"> <span>//</span> MUDANZA</span></div>
+          <div class="brand-sub" id="phaseSub">Cargando…</div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <button class="user-chip" id="userChip" data-act="user"><span class="dot"></span><span id="userName">—</span></button>
+        <button class="icon-btn" data-act="menu" aria-label="Menú"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h12"/></svg></button>
+      </div>
+    </div>
+    <div class="phase-switch" id="phaseSwitch">
+      <button data-act="mode" data-v="rec"><b>01</b> Registro</button>
+      <button data-act="mode" data-v="inst"><b>02</b> Mudanza</button>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <main class="list-view" id="listView">
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar puesto, nombre o tag…" autocomplete="off" enterkeyhint="search">
+      <button class="clear" data-act="clearq" aria-label="Limpiar">×</button>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="filters" id="filters"></div>
+    <div class="cards" id="cards"></div>
+  </main>
+</div>
+
+<section class="detail" id="detail" aria-hidden="true">
+  <div class="d-top">
+    <button class="icon-btn back" data-act="close" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="d-title" id="dTitle"></div>
+    <div class="save-ind" id="saveInd"></div>
+  </div>
+  <div class="d-body" id="dBody"></div>
+  <div class="d-foot" id="dFoot"></div>
+</section>
+
+<div class="viewer" id="viewer" aria-hidden="true"></div>
+<div class="modal" id="modal" aria-hidden="true"></div>
+<div class="toasts" id="toasts"></div>
+<div class="banner" id="banner" aria-hidden="true"></div>
+<input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="fileGal" accept="image/*" multiple hidden>
+
+<script src="/shared.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
